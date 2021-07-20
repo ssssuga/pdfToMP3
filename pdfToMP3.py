@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
 	#split pdf from start into batches of step pages 
 	start = 20
-	end = cl.pages-1
+	end = cl.pages
 	step = 30
 
 	#create list of pages to include in each batch -will update to isolate this as a standalone function
