@@ -5,10 +5,8 @@ from playsound import playsound
 import multiprocessing
 
 
-	
 class cleanPDF:
-
-	#select pdf to clean & convert  
+	#choose name for pdf/mp3 file 
 	def __init__(self, filename):
 		self.filepathPDF = '/Users/suga/PythonProjects/Audiobooks/' + filename + '.pdf'
 		self.open = open(self.filepathPDF, 'rb')
@@ -21,9 +19,8 @@ class cleanPDF:
 		for page in range(self.pages):
 			self.page = self.reader.getPage(page)
 			self.text = self.page.extractText()
-			self.cleantext = self.text.replace(f'Napoleon Hill   |   {page+1}','').replace('Think and Grow Rich','') #specific to this book -update to remove headers/footers from your text 
+			self.cleantext = self.text.replace(f'Napoleon Hill   |   {page+1}','').replace('Think and Grow Rich','') #specific to this book -update to remove headers/footers from your text
 			pageDict[f'{page}'] = self.cleantext
-		
 		return pageDict
 
 class audioBook:
@@ -31,15 +28,15 @@ class audioBook:
 	#create a folder to save mp3 file
 	def __init__(self, filename, ttconvert):
 		self.text = str(ttconvert)
-		self.filepathMP3 = f'/Users/suga/PythonProjects/Audiobooks/{filename}_audio/{filename}.mp3'
+		self.filepathMP3 = f'/Users/suga/PythonProjects/Audiobooks/{filename}.mp3'
 		self.filename = filename
 	
 	#convert text and save to file
 	def ttmp3(self):
-		tts = gTTS(text=self.text, lang='en', tld='co.za', slow=False)
+		tts = gTTS(text=self.text, lang='en', tld='co.uk', slow=False)
 		tts.save(self.filepathMP3)
 		return 
-	
+
 	#play 15 sec snippet of converted file
 	def playSnippet(self): 
 		p = multiprocessing.Process(target=playsound, args=(self.filepathMP3,))
@@ -51,22 +48,21 @@ class audioBook:
 
 
 if __name__ == '__main__':
-	
+
 	#this is the existing name of the pdf, and will be the same name used for the mp3 file
 	filename = 'thinkrich'
 
 	cl = cleanPDF(filename)
 	clDict = cl.pdfToDict()
-	
-	#specify page you wish to start from
+
+	#split pdf from start into batches of step pages 
 	start = 20
-	end = cl.pages
-	step = 5 #split pdf file into batches of x pages 
-	
-	
+	end = cl.pages-1
+	step = 30
+
 	#create list of pages to include in each batch -will update to isolate this as a standalone function
 	numeros = [(i,i+step) for i in range(start, end, step)]
-	
+
 	chunklist = []
 	for n1, n2 in numeros:
 		numrange = range(n1, n2)
@@ -77,11 +73,11 @@ if __name__ == '__main__':
 	for chunk in chunklist:
 		textout = ''
 		for page in chunk:
-			textout += clDict[f'{page-1}']
+			textout += clDict[f'{page-2}']
 		printlist.append(textout)
 	
 	print(f'{len(printlist)} chunks to download...')
-	
+
 	#convert each batch into mp3, save and play snippet
 	for count, batch in enumerate(printlist):
 		if count == 0:
